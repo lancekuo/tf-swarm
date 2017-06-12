@@ -10,3 +10,6 @@ output "bastion_public_ip" {
 output "bastion_private_ip" {
     value = "${aws_eip.swarm-bastion.private_ip}"
 }
+output "node_list_string" {
+    value = "${join(",",aws_instance.swarm-node.*.id)}"
+}
