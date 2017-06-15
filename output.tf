@@ -13,3 +13,7 @@ output "bastion_private_ip" {
 output "node_list_string" {
     value = "${join(",",aws_instance.swarm-node.*.id)}"
 }
+
+output "security_group_node_id" {
+    value = "${aws_security_group.swarm-node.id}"
+}
