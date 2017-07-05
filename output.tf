@@ -17,3 +17,7 @@ output "node_list_string" {
 output "security_group_node_id" {
     value = "${aws_security_group.swarm-node.id}"
 }
+
+output "elb_grafana_dns" {
+    value = "${aws_elb.grafana.dns_name}"
+}
