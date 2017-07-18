@@ -21,3 +21,6 @@ output "security_group_node_id" {
 output "elb_grafana_dns" {
     value = "${aws_elb.grafana.dns_name}"
 }
+output "elb_kibana_dns" {
+    value = "${aws_elb.kibana.dns_name}"
+}
