@@ -151,6 +151,12 @@ resource "aws_security_group" "swarm-outgoing-service" {
         security_groups = ["${aws_security_group.grafana-elb.id}"]
     }
     ingress {
+        from_port   = 5601
+        to_port     = 5601
+        protocol    = "tcp"
+        security_groups = ["${aws_security_group.kibana-elb.id}"]
+    }
+    ingress {
         from_port   = 9090
         to_port     = 9090
         protocol    = "tcp"
@@ -182,6 +188,30 @@ resource "aws_security_group" "grafana-elb" {
     }
     tags {
         Name    = "${terraform.env}-grafana-elb"
+        Env     = "${terraform.env}"
+        Project = "${var.project}"
+    }
+}
+resource "aws_security_group" "kibana-elb" {
+    provider    = "aws.${var.region}"
+    name        = "${terraform.env}-kibana-elb"
+    description = "Provide the access to internet to connect to internal kibana site"
+    vpc_id      = "${var.vpc_default_id}"
+
+    ingress {
+        from_port   = 80
+        to_port     = 80
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port       = 0
+        to_port         = 0
+        protocol        = "-1"
+        cidr_blocks     = ["0.0.0.0/0"]
+    }
+    tags {
+        Name    = "${terraform.env}-kibana-elb"
         Env     = "${terraform.env}"
         Project = "${var.project}"
     }
