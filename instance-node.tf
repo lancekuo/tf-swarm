@@ -19,7 +19,7 @@ resource "aws_instance" "swarm-node" {
     instance_type          = "t2.small"
     ami                    = "${var.ami}"
     key_name               = "${aws_key_pair.swarm-node.id}"
-    vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}"]
+    vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
     subnet_id              = "${element(split(",", var.subnet_public_app), (count.index+var.swarm_manager_count))}"
 
     root_block_device = {

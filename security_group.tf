@@ -168,6 +168,30 @@ resource "aws_security_group" "swarm-outgoing-service" {
         Project = "${var.project}"
     }
 }
+resource "aws_security_group" "swarm-logstash" {
+    provider    = "aws.${var.region}"
+    name        = "${terraform.env}-swarm-logstash"
+    description = "Provide the access to logstash internally."
+    vpc_id      = "${var.vpc_default_id}"
+
+    ingress {
+        from_port   = 5000
+        to_port     = 5000
+        protocol    = "udp"
+        security_groups = ["${aws_security_group.swarm-node.id}"]
+    }
+    ingress {
+        from_port   = 9600
+        to_port     = 9600
+        protocol    = "tcp"
+        security_groups = ["${aws_security_group.swarm-node.id}"]
+    }
+    tags {
+        Name    = "${terraform.env}-swarm-logstash"
+        Env     = "${terraform.env}"
+        Project = "${var.project}"
+    }
+}
 resource "aws_security_group" "grafana-elb" {
     provider    = "aws.${var.region}"
     name        = "${terraform.env}-grafana-elb"

@@ -22,6 +22,8 @@ variable "node_public_key_path" {}
 variable "node_private_key_path" {}
 variable "node_aws_key_name" {}
 
+variable "internal_zone_id" {}
+
 provider "aws" {
     alias  = "${var.region}"
     region = "${var.region}"
