@@ -24,3 +24,6 @@ output "elb_grafana_dns" {
 output "elb_kibana_dns" {
     value = "${aws_elb.kibana.dns_name}"
 }
+output "logstash_internal_dns" {
+    value = "${aws_route53_record.logstash.fqdn}"
+}
