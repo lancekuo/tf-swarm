@@ -3,13 +3,21 @@ resource "aws_key_pair" "swarm-manager" {
     key_name   = "${terraform.env}-${var.region}-${var.manager_aws_key_name}"
     public_key = "${file("${path.root}${var.manager_public_key_path}")}"
 }
+data "template_file" "hostname-manager" {
+    template = "$${hostname}"
+    count    = "${var.swarm_manager_count}"
+
+    vars {
+        hostname = "${terraform.env}-${lower(var.project)}-manager-${count.index}"
+    }
+}
 
 data "template_file" "user-data-master" {
     template = "${file("${path.module}/cloud-init/hostname")}"
     count    = "${var.swarm_manager_count}"
 
     vars {
-        hostname = "${terraform.env}-${lower(var.project)}-manager-${count.index}"
+        hostname = "${element(data.template_file.hostname-manager.*.rendered, count.index)}"
         domain   = "${var.domain}"
     }
 }
@@ -41,14 +49,11 @@ resource "aws_instance" "swarm-manager" {
         inline = [" if [ ${count.index} -eq 0 ]; then sudo docker swarm init; else sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q manager); fi"]
     }
     tags  {
-        Name    = "${terraform.env}-${lower(var.project)}-manager-${count.index}"
+        Name    = "${element(data.template_file.hostname-manager.*.rendered, count.index)}"
         Env     = "${terraform.env}"
         Project = "${var.project}"
         Role    = "manager"
         Index   = "${count.index}"
     }
     user_data = "${element(data.template_file.user-data-master.*.rendered, count.index)}"
-    depends_on = [
-        "aws_instance.swarm-bastion"
-    ]
 }
