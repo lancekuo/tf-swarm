@@ -3,13 +3,13 @@ data "template_file" "user-data-bastion" {
     count    = 1
 
     vars {
-        hostname = "${terraform.env}-${lower(var.project)}-bastion-${count.index}"
+        hostname = "${terraform.workspace}-${lower(var.project)}-bastion-${count.index}"
         domain   = "${var.domain}"
     }
 }
 resource "aws_key_pair" "swarm-bastion" {
     provider   = "aws.${var.region}"
-    key_name   = "${terraform.env}-${var.region}-${var.bastion_aws_key_name}"
+    key_name   = "${terraform.workspace}-${var.region}-${var.bastion_aws_key_name}"
     public_key = "${file("${path.root}${var.bastion_public_key_path}")}"
 }
 resource "aws_instance" "swarm-bastion" {
@@ -22,8 +22,8 @@ resource "aws_instance" "swarm-bastion" {
     subnet_id              = "${element(split(",", var.subnet_public), var.subnet_on_public)}"
 
     tags  {
-        Name           = "${terraform.env}-${lower(var.project)}-bastion-${count.index}"
-        Env            = "${terraform.env}"
+        Name           = "${terraform.workspace}-${lower(var.project)}-bastion-${count.index}"
+        Env            = "${terraform.workspace}"
         Project        = "${var.project}"
         Role           = "bastion"
         Index          = "${count.index}"

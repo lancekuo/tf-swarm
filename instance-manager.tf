@@ -1,6 +1,6 @@
 resource "aws_key_pair" "swarm-manager" {
     provider   = "aws.${var.region}"
-    key_name   = "${terraform.env}-${var.region}-${var.manager_aws_key_name}"
+    key_name   = "${terraform.workspace}-${var.region}-${var.manager_aws_key_name}"
     public_key = "${file("${path.root}${var.manager_public_key_path}")}"
 }
 data "template_file" "hostname-manager" {
@@ -8,7 +8,7 @@ data "template_file" "hostname-manager" {
     count    = "${var.swarm_manager_count}"
 
     vars {
-        hostname = "${terraform.env}-${lower(var.project)}-manager-${count.index}"
+        hostname = "${terraform.workspace}-${lower(var.project)}-manager-${count.index}"
     }
 }
 
@@ -50,7 +50,7 @@ resource "aws_instance" "swarm-manager" {
     }
     tags  {
         Name    = "${element(data.template_file.hostname-manager.*.rendered, count.index)}"
-        Env     = "${terraform.env}"
+        Env     = "${terraform.workspace}"
         Project = "${var.project}"
         Role    = "manager"
         Index   = "${count.index}"

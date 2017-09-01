@@ -15,8 +15,8 @@ resource "aws_ebs_volume" "storage-metric" {
         prevent_destroy = true
     }
     tags  {
-        Name    = "${terraform.env}-${lower(var.project)}-storage-metric"
-        Env     = "${terraform.env}"
+        Name    = "${terraform.workspace}-${lower(var.project)}-storage-metric"
+        Env     = "${terraform.workspace}"
         Project = "${var.project}"
         Role    = "storage"
     }

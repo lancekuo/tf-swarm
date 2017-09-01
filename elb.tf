@@ -1,6 +1,6 @@
 resource "aws_elb" "grafana" {
     provider = "aws.${var.region}"
-    name = "${terraform.env}-grafana"
+    name = "${terraform.workspace}-grafana"
 
     subnets         = ["${split(",", var.subnet_public_app)}"]
     security_groups = ["${aws_security_group.grafana-elb.id}"]
@@ -20,14 +20,14 @@ resource "aws_elb" "grafana" {
         interval            = 5
     }
     tags  {
-        Env     = "${terraform.env}"
+        Env     = "${terraform.workspace}"
         Project = "${var.project}"
     }
 }
 
 resource "aws_elb" "kibana" {
     provider = "aws.${var.region}"
-    name = "${terraform.env}-kibana"
+    name = "${terraform.workspace}-kibana"
 
     subnets         = ["${split(",", var.subnet_public_app)}"]
     security_groups = ["${aws_security_group.kibana-elb.id}"]
@@ -47,7 +47,7 @@ resource "aws_elb" "kibana" {
         interval            = 5
     }
     tags  {
-        Env     = "${terraform.env}"
+        Env     = "${terraform.workspace}"
         Project = "${var.project}"
     }
 }
