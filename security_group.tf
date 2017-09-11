@@ -1,7 +1,7 @@
 variable "vpc_default_id" {}
 
 resource "aws_security_group" "swarm-manager" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-manager"
     description = "Gossip and port for swarm manager internal"
     vpc_id      = "${var.vpc_default_id}"
@@ -31,7 +31,7 @@ resource "aws_security_group" "swarm-manager" {
     }
 }
 resource "aws_security_group" "swarm-node" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-node"
     description = "Gossip and port for swarm mode internal"
     vpc_id      = "${var.vpc_default_id}"
@@ -113,7 +113,7 @@ resource "aws_security_group" "swarm-node" {
 }
 
 resource "aws_security_group" "swarm-bastion" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-bastion"
     description = "Access to the bastion machine"
     vpc_id      = "${var.vpc_default_id}"
@@ -139,7 +139,7 @@ resource "aws_security_group" "swarm-bastion" {
 }
 
 resource "aws_security_group" "swarm-outgoing-service" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-outgoing-service"
     description = "Provide the access to internet to connect to internal sites"
     vpc_id      = "${var.vpc_default_id}"
@@ -169,7 +169,7 @@ resource "aws_security_group" "swarm-outgoing-service" {
     }
 }
 resource "aws_security_group" "swarm-logstash" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-logstash"
     description = "Provide the access to logstash internally."
     vpc_id      = "${var.vpc_default_id}"
@@ -193,7 +193,7 @@ resource "aws_security_group" "swarm-logstash" {
     }
 }
 resource "aws_security_group" "grafana-elb" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-grafana-elb"
     description = "Provide the access to internet to connect to internal grafana site"
     vpc_id      = "${var.vpc_default_id}"
@@ -217,7 +217,7 @@ resource "aws_security_group" "grafana-elb" {
     }
 }
 resource "aws_security_group" "kibana-elb" {
-    provider    = "aws.${var.region}"
+    provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-kibana-elb"
     description = "Provide the access to internet to connect to internal kibana site"
     vpc_id      = "${var.vpc_default_id}"

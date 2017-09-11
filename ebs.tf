@@ -1,5 +1,5 @@
 resource "aws_volume_attachment" "ebs_att" {
-    provider     = "aws.${var.region}"
+    provider     = "aws.${var.aws_region}"
     device_name  = "/dev/xvdg"
     volume_id    = "${aws_ebs_volume.storage-metric.id}"
     instance_id  = "${element(aws_instance.swarm-node.*.id, 0)}"
@@ -7,8 +7,8 @@ resource "aws_volume_attachment" "ebs_att" {
     force_detach = false
 }
 resource "aws_ebs_volume" "storage-metric" {
-    provider          = "aws.${var.region}"
-    availability_zone = "${element(split(",", var.availability_zones), (length(aws_instance.swarm-node.*.id)-1+var.swarm_manager_count))}"
+    provider          = "aws.${var.aws_region}"
+    availability_zone = "${element(var.availability_zones, (length(aws_instance.swarm-node.*.id)-1+var.count_swarm_manager))}"
     size              = 100
     lifecycle         = {
         ignore_changes  = "*"

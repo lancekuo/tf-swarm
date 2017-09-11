@@ -1,8 +1,8 @@
 resource "aws_elb" "grafana" {
-    provider = "aws.${var.region}"
+    provider = "aws.${var.aws_region}"
     name = "${terraform.workspace}-grafana"
 
-    subnets         = ["${split(",", var.subnet_public_app)}"]
+    subnets         = ["$var.subnet_public_app_ids}"]
     security_groups = ["${aws_security_group.grafana-elb.id}"]
     instances       = ["${aws_instance.swarm-node.*.id}", "${aws_instance.swarm-manager.*.id}"]
 
@@ -26,10 +26,10 @@ resource "aws_elb" "grafana" {
 }
 
 resource "aws_elb" "kibana" {
-    provider = "aws.${var.region}"
+    provider = "aws.${var.aws_region}"
     name = "${terraform.workspace}-kibana"
 
-    subnets         = ["${split(",", var.subnet_public_app)}"]
+    subnets         = ["${var.subnet_public_app_ids}"]
     security_groups = ["${aws_security_group.kibana-elb.id}"]
     instances       = ["${aws_instance.swarm-node.*.id}", "${aws_instance.swarm-manager.*.id}"]
 

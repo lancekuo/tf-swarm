@@ -1,11 +1,6 @@
-resource "aws_key_pair" "swarm-node" {
-    provider   = "aws.${var.region}"
-    key_name   = "${terraform.workspace}-${var.region}-${var.node_aws_key_name}"
-    public_key = "${file("${path.root}${var.node_public_key_path}")}"
-}
 data "template_file" "hostname-node" {
     template = "$${hostname}"
-    count    = "${var.swarm_node_count}"
+    count    = "${var.count_swarm_node}"
 
     vars {
         hostname = "${terraform.workspace}-${lower(var.project)}-node-${count.index}"
@@ -14,21 +9,26 @@ data "template_file" "hostname-node" {
 
 data "template_file" "user-data-node" {
     template = "${file("${path.module}/cloud-init/hostname")}"
-    count    = "${var.swarm_node_count}"
+    count    = "${var.count_swarm_node}"
 
     vars {
         hostname = "${element(data.template_file.hostname-node.*.rendered, count.index)}"
         domain   = "${var.domain}"
     }
 }
+resource "aws_key_pair" "swarm-node" {
+    provider   = "aws.${var.aws_region}"
+    key_name   = "${terraform.workspace}-${var.aws_region}-${var.node_aws_key_name}"
+    public_key = "${file("${path.root}${var.node_public_key_path}")}"
+}
 resource "aws_instance" "swarm-node" {
-    provider               = "aws.${var.region}"
-    count                  = "${var.swarm_node_count}"
+    provider               = "aws.${var.aws_region}"
+    count                  = "${var.count_swarm_node}"
     instance_type          = "t2.small"
-    ami                    = "${var.ami}"
+    ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-node.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
-    subnet_id              = "${element(split(",", var.subnet_public_app), (count.index+var.swarm_manager_count))}"
+    subnet_id              = "${element(var.subnet_public_app_ids, (count.index+var.count_swarm_manager))}"
 
     root_block_device = {
         volume_size = 20

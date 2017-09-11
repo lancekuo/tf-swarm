@@ -8,18 +8,18 @@ data "template_file" "user-data-bastion" {
     }
 }
 resource "aws_key_pair" "swarm-bastion" {
-    provider   = "aws.${var.region}"
-    key_name   = "${terraform.workspace}-${var.region}-${var.bastion_aws_key_name}"
+    provider   = "aws.${var.aws_region}"
+    key_name   = "${terraform.workspace}-${var.aws_region}-${var.bastion_aws_key_name}"
     public_key = "${file("${path.root}${var.bastion_public_key_path}")}"
 }
 resource "aws_instance" "swarm-bastion" {
-    provider               = "aws.${var.region}"
+    provider               = "aws.${var.aws_region}"
     count                  = 1
     instance_type          = "t2.nano"
-    ami                    = "${var.ami}"
+    ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-bastion.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-bastion.id}"]
-    subnet_id              = "${element(split(",", var.subnet_public), var.subnet_on_public)}"
+    subnet_id              = "${element(var.subnet_public_bastion_ids, var.count_bastion_subnet_on_public)}"
 
     tags  {
         Name           = "${terraform.workspace}-${lower(var.project)}-bastion-${count.index}"
@@ -31,7 +31,7 @@ resource "aws_instance" "swarm-bastion" {
     user_data  = "${element(data.template_file.user-data-bastion.*.rendered, count.index)}"
 }
 resource "aws_eip" "swarm-bastion" {
-    provider = "aws.${var.region}"
+    provider = "aws.${var.aws_region}"
     vpc      = true
     instance = "${aws_instance.swarm-bastion.id}"
 }

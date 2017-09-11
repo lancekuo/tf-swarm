@@ -1,11 +1,6 @@
-resource "aws_key_pair" "swarm-manager" {
-    provider   = "aws.${var.region}"
-    key_name   = "${terraform.workspace}-${var.region}-${var.manager_aws_key_name}"
-    public_key = "${file("${path.root}${var.manager_public_key_path}")}"
-}
 data "template_file" "hostname-manager" {
     template = "$${hostname}"
-    count    = "${var.swarm_manager_count}"
+    count    = "${var.count_swarm_manager}"
 
     vars {
         hostname = "${terraform.workspace}-${lower(var.project)}-manager-${count.index}"
@@ -14,21 +9,26 @@ data "template_file" "hostname-manager" {
 
 data "template_file" "user-data-master" {
     template = "${file("${path.module}/cloud-init/hostname")}"
-    count    = "${var.swarm_manager_count}"
+    count    = "${var.count_swarm_manager}"
 
     vars {
         hostname = "${element(data.template_file.hostname-manager.*.rendered, count.index)}"
         domain   = "${var.domain}"
     }
 }
+resource "aws_key_pair" "swarm-manager" {
+    provider   = "aws.${var.aws_region}"
+    key_name   = "${terraform.workspace}-${var.aws_region}-${var.manager_aws_key_name}"
+    public_key = "${file("${path.root}${var.manager_public_key_path}")}"
+}
 resource "aws_instance" "swarm-manager" {
-    provider               = "aws.${var.region}"
-    count                  = "${var.swarm_manager_count}"
+    provider               = "aws.${var.aws_region}"
+    count                  = "${var.count_swarm_manager}"
     instance_type          = "t2.small"
-    ami                    = "${var.ami}"
+    ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-manager.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-manager.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
-    subnet_id              = "${element(split(",", var.subnet_public_app), count.index)}"
+    subnet_id              = "${element(var.subnet_public_app_ids, count.index)}"
 
     root_block_device = {
         volume_size = 20
