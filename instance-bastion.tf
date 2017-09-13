@@ -9,8 +9,8 @@ data "template_file" "user-data-bastion" {
 }
 resource "aws_key_pair" "swarm-bastion" {
     provider   = "aws.${var.aws_region}"
-    key_name   = "${terraform.workspace}-${var.aws_region}-${var.bastion_aws_key_name}"
-    public_key = "${file("${path.root}${var.bastion_public_key_path}")}"
+    key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_bastion["aws_key_name"]}"
+    public_key = "${file("${path.root}${var.rsa_key_bastion["public_key_path"]}")}"
 }
 resource "aws_instance" "swarm-bastion" {
     provider               = "aws.${var.aws_region}"

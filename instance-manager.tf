@@ -18,8 +18,8 @@ data "template_file" "user-data-master" {
 }
 resource "aws_key_pair" "swarm-manager" {
     provider   = "aws.${var.aws_region}"
-    key_name   = "${terraform.workspace}-${var.aws_region}-${var.manager_aws_key_name}"
-    public_key = "${file("${path.root}${var.manager_public_key_path}")}"
+    key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_manager["aws_key_name"]}"
+    public_key = "${file("${path.root}${var.rsa_key_manager["public_key_path"]}")}"
 }
 resource "aws_instance" "swarm-manager" {
     provider               = "aws.${var.aws_region}"
@@ -37,12 +37,12 @@ resource "aws_instance" "swarm-manager" {
     connection {
         bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
         bastion_user        = "ubuntu"
-        bastion_private_key = "${file("${path.root}${var.bastion_private_key_path}")}"
+        bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
         type                = "ssh"
         user                = "ubuntu"
         host                = "${self.private_ip}"
-        private_key         = "${file("${path.root}${var.manager_private_key_path}")}"
+        private_key         = "${file("${path.root}${var.rsa_key_manager["private_key_path"]}")}"
     }
 
     provisioner "remote-exec" {

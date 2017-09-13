@@ -13,15 +13,9 @@ variable "project"                        {}
 variable "domain"                         {}
 variable "availability_zones"             {type="list"}
 
-variable "bastion_public_key_path"        {}
-variable "bastion_private_key_path"       {}
-variable "bastion_aws_key_name"           {}
-variable "manager_public_key_path"        {}
-variable "manager_private_key_path"       {}
-variable "manager_aws_key_name"           {}
-variable "node_public_key_path"           {}
-variable "node_private_key_path"          {}
-variable "node_aws_key_name"              {}
+variable "rsa_key_bastion"                 {type="map"}
+variable "rsa_key_node"                    {type="map"}
+variable "rsa_key_manager"                 {type="map"}
 
 variable "route53_internal_zone_id"       {}
 
