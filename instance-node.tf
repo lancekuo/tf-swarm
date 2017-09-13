@@ -24,7 +24,7 @@ resource "aws_key_pair" "swarm-node" {
 resource "aws_instance" "swarm-node" {
     provider               = "aws.${var.aws_region}"
     count                  = "${var.count_swarm_node}"
-    instance_type          = "t2.small"
+    instance_type          = "${var.instance_type_node}"
     ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-node.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
@@ -32,6 +32,7 @@ resource "aws_instance" "swarm-node" {
 
     root_block_device = {
         volume_size = 20
+        volume_type = "gp2"
     }
 
     connection {

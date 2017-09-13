@@ -8,14 +8,18 @@ variable "count_swarm_node"               {}
 variable "subnet_public_bastion_ids"      {type="list"}
 variable "subnet_public_app_ids"          {type="list"}
 variable "subnet_private_ids"             {type="list"}
-variable "aws_ami_docker"                 {}
 variable "project"                        {}
 variable "domain"                         {}
 variable "availability_zones"             {type="list"}
 
-variable "rsa_key_bastion"                 {type="map"}
-variable "rsa_key_node"                    {type="map"}
-variable "rsa_key_manager"                 {type="map"}
+variable "aws_ami_docker"                 {}
+variable "instance_type_bastion"          {}
+variable "instance_type_manager"          {}
+variable "instance_type_node"             {}
+
+variable "rsa_key_bastion"                {type="map"}
+variable "rsa_key_node"                   {type="map"}
+variable "rsa_key_manager"                {type="map"}
 
 variable "route53_internal_zone_id"       {}
 

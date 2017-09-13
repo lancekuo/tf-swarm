@@ -15,7 +15,7 @@ resource "aws_key_pair" "swarm-bastion" {
 resource "aws_instance" "swarm-bastion" {
     provider               = "aws.${var.aws_region}"
     count                  = 1
-    instance_type          = "t2.nano"
+    instance_type          = "${var.instance_type_bastion}"
     ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-bastion.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-bastion.id}"]
