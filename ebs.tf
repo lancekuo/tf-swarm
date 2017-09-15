@@ -38,12 +38,12 @@ resource "null_resource" "ebs_trigger" {
         connection {
             bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
             bastion_user        = "ubuntu"
-            bastion_private_key = "${file("${path.root}${var.bastion_private_key_path}")}"
+            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
             type                = "ssh"
             user                = "ubuntu"
             host                = "${element(aws_instance.swarm-node.*.private_ip, 0)}"
-            private_key         = "${file("${path.root}${var.node_private_key_path}")}"
+            private_key         = "${file("${path.root}${var.rsa_key_node["private_key_path"]}")}"
         }
     }
     provisioner "remote-exec" {
@@ -54,12 +54,12 @@ resource "null_resource" "ebs_trigger" {
         connection {
             bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
             bastion_user        = "ubuntu"
-            bastion_private_key = "${file("${path.root}${var.bastion_private_key_path}")}"
+            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
             type                = "ssh"
             user                = "ubuntu"
             host                = "${element(aws_instance.swarm-manager.*.private_ip, 0)}"
-            private_key         = "${file("${path.root}${var.manager_private_key_path}")}"
+            private_key         = "${file("${path.root}${var.rsa_key_manager["private_key_path"]}")}"
         }
     }
 }
