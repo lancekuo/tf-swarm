@@ -8,7 +8,7 @@ resource "aws_volume_attachment" "ebs_att" {
 }
 resource "aws_ebs_volume" "storage-metric" {
     provider          = "aws.${var.aws_region}"
-    availability_zone = "${element(var.availability_zones, (length(aws_instance.swarm-node.*.id)-1+var.count_swarm_manager))}"
+    availability_zone = "${element(var.availability_zones, length(aws_instance.swarm-node.*.id)-1)}"
     size              = 100
     lifecycle         = {
         ignore_changes  = "*"
