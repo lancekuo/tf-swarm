@@ -2,7 +2,7 @@ resource "aws_elb" "grafana" {
     provider = "aws.${var.aws_region}"
     name = "${terraform.workspace}-grafana"
 
-    subnets         = ["$var.subnet_public_app_ids}"]
+    subnets         = ["${var.subnet_public_app_ids}"]
     security_groups = ["${aws_security_group.grafana-elb.id}"]
     instances       = ["${aws_instance.swarm-node.*.id}", "${aws_instance.swarm-manager.*.id}"]
 
