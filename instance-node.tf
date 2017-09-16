@@ -51,53 +51,53 @@ resource "aws_instance" "swarm-node" {
             "sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q worker)"
         ]
     }
-    # drain and remove the node on destroy
-    provisioner "remote-exec" {
-        when = "destroy"
-
-        inline = [
-            "sudo docker node update --availability drain ${element(data.template_file.hostname-node.*.rendered, count.index)}",
-        ]
-        on_failure = "continue"
-        connection {
-            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
-            bastion_user        = "ubuntu"
-            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
-
-            type                = "ssh"
-            user                = "ubuntu"
-            host                = "${aws_instance.swarm-manager.0.private_ip}"
-            private_key         = "${file("${path.root}${var.rsa_key_node["private_key_path"]}")}"
-        }
-    }
-
-    provisioner "remote-exec" {
-        when = "destroy"
-
-        inline = [
-            "sudo docker swarm leave",
-        ]
-        on_failure = "continue"
-    }
-
-    provisioner "remote-exec" {
-        when = "destroy"
-
-        inline = [
-            "sudo docker node rm --force ${element(data.template_file.hostname-node.*.rendered, count.index)}",
-        ]
-        on_failure = "continue"
-        connection {
-            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
-            bastion_user        = "ubuntu"
-            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
-
-            type                = "ssh"
-            user                = "ubuntu"
-            host                = "${aws_instance.swarm-manager.0.private_ip}"
-            private_key         = "${file("${path.root}${var.rsa_key_node["private_key_path"]}")}"
-        }
-    }
+#    # drain and remove the node on destroy
+#    provisioner "remote-exec" {
+#        when = "destroy"
+#
+#        inline = [
+#            "sudo docker node update --availability drain ${element(data.template_file.hostname-node.*.rendered, count.index)}",
+#        ]
+#        on_failure = "continue"
+#        connection {
+#            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
+#            bastion_user        = "ubuntu"
+#            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
+#
+#            type                = "ssh"
+#            user                = "ubuntu"
+#            host                = "${aws_instance.swarm-manager.0.private_ip}"
+#            private_key         = "${file("${path.root}${var.rsa_key_node["private_key_path"]}")}"
+#        }
+#    }
+#
+#    provisioner "remote-exec" {
+#        when = "destroy"
+#
+#        inline = [
+#            "sudo docker swarm leave",
+#        ]
+#        on_failure = "continue"
+#    }
+#
+#    provisioner "remote-exec" {
+#        when = "destroy"
+#
+#        inline = [
+#            "sudo docker node rm --force ${element(data.template_file.hostname-node.*.rendered, count.index)}",
+#        ]
+#        on_failure = "continue"
+#        connection {
+#            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
+#            bastion_user        = "ubuntu"
+#            bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
+#
+#            type                = "ssh"
+#            user                = "ubuntu"
+#            host                = "${aws_instance.swarm-manager.0.private_ip}"
+#            private_key         = "${file("${path.root}${var.rsa_key_node["private_key_path"]}")}"
+#        }
+#    }
     tags  {
         Name    = "${element(data.template_file.hostname-node.*.rendered, count.index)}"
         Env     = "${terraform.workspace}"
