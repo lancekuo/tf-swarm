@@ -1,4 +1,5 @@
 variable "aws_region"                     {}
+variable "aws_profile"                    {}
 
 variable "count_bastion_subnet_on_public" {}
 variable "count_instance_per_az"          {}
@@ -24,6 +25,7 @@ variable "rsa_key_manager"                {type="map"}
 variable "route53_internal_zone_id"       {}
 
 provider "aws" {
-    alias  = "${var.aws_region}"
-    region = "${var.aws_region}"
+    alias   = "${var.aws_region}"
+    region  = "${var.aws_region}"
+    profile = "${var.aws_profile}"
 }
