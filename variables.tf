@@ -23,6 +23,9 @@ variable "rsa_key_node"                   {type="map"}
 variable "rsa_key_manager"                {type="map"}
 
 variable "route53_internal_zone_id"       {}
+variable "mount_point"                    {}
+variable "device_file"                    {}
+variable "partition_file"                 {}
 
 provider "aws" {
     alias   = "${var.aws_region}"
