@@ -168,6 +168,32 @@ resource "aws_security_group" "swarm-outgoing-service" {
         Project = "${var.project}"
     }
 }
+resource "aws_security_group" "private_registry" {
+    provider    = "aws.${var.aws_region}"
+    name        = "${terraform.workspace}-${var.project}-private_registry"
+    description = "Access to Private Registry service"
+    vpc_id      = "${var.vpc_default_id}"
+
+    ingress {
+        from_port   = 80
+        to_port     = 80
+        protocol    = "tcp"
+        security_groups = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-manager.id}"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    tags {
+        Name    = "${terraform.workspace}-${var.project}-private_registry"
+        Env     = "${terraform.workspace}"
+        Project = "${var.project}"
+    }
+}
+
 resource "aws_security_group" "swarm-logstash" {
     provider    = "aws.${var.aws_region}"
     name        = "${terraform.workspace}-swarm-logstash"

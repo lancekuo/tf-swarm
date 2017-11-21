@@ -18,7 +18,7 @@ resource "aws_instance" "swarm-bastion" {
     instance_type          = "${var.instance_type_bastion}"
     ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-bastion.id}"
-    vpc_security_group_ids = ["${aws_security_group.swarm-bastion.id}"]
+    vpc_security_group_ids = ["${aws_security_group.swarm-bastion.id}", "${aws_security_group.private_registry.id}"]
     subnet_id              = "${element(var.subnet_public_bastion_ids, var.count_bastion_subnet_on_public)}"
 
     tags  {
