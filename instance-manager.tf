@@ -17,12 +17,10 @@ data "template_file" "user-data-master" {
     }
 }
 resource "aws_key_pair" "swarm-manager" {
-    provider   = "aws.${var.aws_region}"
     key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_manager["aws_key_name"]}"
     public_key = "${file("${path.root}${var.rsa_key_manager["public_key_path"]}")}"
 }
 resource "aws_instance" "swarm-manager" {
-    provider               = "aws.${var.aws_region}"
     count                  = "${var.count_swarm_manager}"
     instance_type          = "${var.instance_type_manager}"
     ami                    = "${var.aws_ami_docker}"

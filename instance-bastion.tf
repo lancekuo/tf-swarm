@@ -8,12 +8,10 @@ data "template_file" "user-data-bastion" {
     }
 }
 resource "aws_key_pair" "swarm-bastion" {
-    provider   = "aws.${var.aws_region}"
     key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_bastion["aws_key_name"]}"
     public_key = "${file("${path.root}${var.rsa_key_bastion["public_key_path"]}")}"
 }
 resource "aws_instance" "swarm-bastion" {
-    provider               = "aws.${var.aws_region}"
     count                  = 1
     instance_type          = "${var.instance_type_bastion}"
     ami                    = "${var.aws_ami_docker}"
@@ -31,7 +29,6 @@ resource "aws_instance" "swarm-bastion" {
     user_data  = "${element(data.template_file.user-data-bastion.*.rendered, count.index)}"
 }
 resource "aws_eip" "swarm-bastion" {
-    provider = "aws.${var.aws_region}"
     vpc      = true
     instance = "${aws_instance.swarm-bastion.id}"
 }

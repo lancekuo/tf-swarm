@@ -1,5 +1,4 @@
 resource "aws_elb" "grafana" {
-    provider = "aws.${var.aws_region}"
     name = "${terraform.workspace}-grafana"
 
     subnets         = ["${var.subnet_public_app_ids}"]
@@ -26,7 +25,6 @@ resource "aws_elb" "grafana" {
 }
 
 resource "aws_elb" "kibana" {
-    provider = "aws.${var.aws_region}"
     name = "${terraform.workspace}-kibana"
 
     subnets         = ["${var.subnet_public_app_ids}"]

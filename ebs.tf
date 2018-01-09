@@ -1,5 +1,4 @@
 resource "aws_volume_attachment" "ebs_att" {
-    provider     = "aws.${var.aws_region}"
     device_name  = "${var.device_file}"
     volume_id    = "${aws_ebs_volume.storage-metric.id}"
     instance_id  = "${element(aws_instance.swarm-node.*.id, 0)}"
@@ -7,7 +6,6 @@ resource "aws_volume_attachment" "ebs_att" {
     force_detach = false
 }
 resource "aws_ebs_volume" "storage-metric" {
-    provider          = "aws.${var.aws_region}"
     availability_zone = "${element(var.availability_zones, length(aws_instance.swarm-manager.*.id))}"
     size              = 100
     type              = "gp2"

@@ -17,12 +17,10 @@ data "template_file" "user-data-node" {
     }
 }
 resource "aws_key_pair" "swarm-node" {
-    provider   = "aws.${var.aws_region}"
     key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_node["aws_key_name"]}"
     public_key = "${file("${path.root}${var.rsa_key_node["public_key_path"]}")}"
 }
 resource "aws_instance" "swarm-node" {
-    provider               = "aws.${var.aws_region}"
     count                  = "${var.count_swarm_node}"
     instance_type          = "${var.instance_type_node}"
     ami                    = "${var.aws_ami_docker}"

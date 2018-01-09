@@ -1,5 +1,4 @@
 resource "aws_route53_record" "logstash" {
-    provider = "aws.${var.aws_region}"
     zone_id  = "${var.route53_internal_zone_id}"
     name     = "${terraform.workspace}-logstash.${var.project}.internal"
     type     = "A"
