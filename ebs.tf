@@ -1,12 +1,12 @@
 resource "aws_volume_attachment" "ebs_att" {
     device_name  = "${var.device_file}"
     volume_id    = "${aws_ebs_volume.storage-metric.id}"
-    instance_id  = "${element(aws_instance.swarm-node.*.id, 0)}"
+    instance_id  = "${aws_instance.swarm-node.0.id}"
     skip_destroy = true
     force_detach = false
 }
 resource "aws_ebs_volume" "storage-metric" {
-    availability_zone = "${element(var.availability_zones, length(aws_instance.swarm-manager.*.id))}"
+    availability_zone = "${element(var.availability_zones, 0)}"
     size              = 100
     type              = "gp2"
     lifecycle         = {
@@ -49,7 +49,7 @@ resource "null_resource" "ebs_trigger" {
     provisioner "remote-exec" {
         inline = [
             "docker node update --label-add type=storage ${element(aws_instance.swarm-node.*.tags.Name, 0)}",
-            "docker node update --label-add type=internal ${element(aws_instance.swarm-manager.*.tags.Name, length(aws_instance.swarm-manager.*.id)-1)}",
+            "docker node update --label-add type=internal ${element(aws_instance.swarm-manager.*.tags.Name, 0)}",
         ]
         connection {
             bastion_host        = "${aws_eip.swarm-bastion.public_ip}"

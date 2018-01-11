@@ -26,7 +26,7 @@ resource "aws_instance" "swarm-node" {
     ami                    = "${var.aws_ami_docker}"
     key_name               = "${aws_key_pair.swarm-node.id}"
     vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
-    subnet_id              = "${element(var.subnet_public_app_ids, (count.index+var.count_swarm_manager))}"
+    subnet_id              = "${element(var.subnet_public_app_ids, count.index)}"
 
     root_block_device = {
         volume_size = 20
