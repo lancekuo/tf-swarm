@@ -47,7 +47,7 @@ resource "aws_instance" "swarm-manager" {
     provisioner "remote-exec" {
         inline = [
             " if [ ${count.index} -eq 0 ]; then sudo docker swarm init; else sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q manager); fi",
-            " if [ ${count.index} -eq 1 ]; then git clone https://github.com/lancekuo/prometheus.git; fi",
+            " if [ ${count.index} -eq 1 ]; then git clone https://github.com/lancekuo/dfproxy.git;git clone https://github.com/lancekuo/prometheus.git; fi",
             " if [ ${count.index} -eq 2 ]; then git clone https://github.com/lancekuo/elk.git; fi"
         ]
     }
