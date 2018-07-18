@@ -16,16 +16,16 @@ data "template_file" "user-data-node" {
         domain   = "${var.domain}"
     }
 }
-resource "aws_key_pair" "swarm-node" {
-    key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_node["aws_key_name"]}"
+resource "aws_key_pair" "node" {
+    key_name   = "${terraform.workspace}-${var.project}-${var.rsa_key_node["aws_key_name"]}"
     public_key = "${file("${path.root}${var.rsa_key_node["public_key_path"]}")}"
 }
-resource "aws_instance" "swarm-node" {
+resource "aws_instance" "node" {
     count                  = "${var.count_swarm_node}"
     instance_type          = "${var.instance_type_node}"
     ami                    = "${var.aws_ami_docker}"
-    key_name               = "${aws_key_pair.swarm-node.id}"
-    vpc_security_group_ids = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.swarm-logstash.id}"]
+    key_name               = "${aws_key_pair.node.id}"
+    vpc_security_group_ids = ["${aws_security_group.node.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.logstash.id}"]
     subnet_id              = "${element(var.subnet_public_app_ids, count.index)}"
 
     root_block_device = {
@@ -34,7 +34,7 @@ resource "aws_instance" "swarm-node" {
     }
 
     connection {
-        bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
+        bastion_host        = "${aws_eip.bastion.public_ip}"
         bastion_user        = "ubuntu"
         bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
@@ -46,7 +46,7 @@ resource "aws_instance" "swarm-node" {
 
     provisioner "remote-exec" {
         inline = [
-            "sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q worker)"
+            "sudo docker swarm join ${aws_instance.manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.manager.0.private_ip} swarm join-token -q worker)"
         ]
     }
 # drain and remove the node on destroy
@@ -58,13 +58,13 @@ resource "aws_instance" "swarm-node" {
         ]
         on_failure = "continue"
         connection {
-            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
+            bastion_host        = "${aws_eip.bastion.public_ip}"
             bastion_user        = "ubuntu"
             bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
             type                = "ssh"
             user                = "ubuntu"
-            host                = "${aws_instance.swarm-manager.0.private_ip}"
+            host                = "${aws_instance.manager.0.private_ip}"
             private_key         = "${file("${path.root}${var.rsa_key_manager["private_key_path"]}")}"
         }
     }
@@ -86,22 +86,23 @@ resource "aws_instance" "swarm-node" {
         ]
         on_failure = "continue"
         connection {
-            bastion_host        = "${aws_eip.swarm-bastion.public_ip}"
+            bastion_host        = "${aws_eip.bastion.public_ip}"
             bastion_user        = "ubuntu"
             bastion_private_key = "${file("${path.root}${var.rsa_key_bastion["private_key_path"]}")}"
 
             type                = "ssh"
             user                = "ubuntu"
-            host                = "${aws_instance.swarm-manager.0.private_ip}"
+            host                = "${aws_instance.manager.0.private_ip}"
             private_key         = "${file("${path.root}${var.rsa_key_manager["private_key_path"]}")}"
         }
     }
     tags  {
-        Name    = "${element(data.template_file.hostname-node.*.rendered, count.index)}"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
-        Role    = "node"
-        Index   = "${count.index}"
+        Name        = "${element(data.template_file.hostname-node.*.rendered, count.index)}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
+        Role        = "node"
+        Index       = "${count.index}"
+        Retention   = 365
     }
     user_data  = "${element(data.template_file.user-data-node.*.rendered, count.index)}"
 }

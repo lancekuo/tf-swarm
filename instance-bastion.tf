@@ -7,28 +7,28 @@ data "template_file" "user-data-bastion" {
         domain   = "${var.domain}"
     }
 }
-resource "aws_key_pair" "swarm-bastion" {
-    key_name   = "${terraform.workspace}-${var.aws_region}-${var.rsa_key_bastion["aws_key_name"]}"
+resource "aws_key_pair" "bastion" {
+    key_name   = "${terraform.workspace}-${var.project}-${var.rsa_key_bastion["aws_key_name"]}"
     public_key = "${file("${path.root}${var.rsa_key_bastion["public_key_path"]}")}"
 }
-resource "aws_instance" "swarm-bastion" {
+resource "aws_instance" "bastion" {
     count                  = 1
     instance_type          = "${var.instance_type_bastion}"
     ami                    = "${var.aws_ami_docker}"
-    key_name               = "${aws_key_pair.swarm-bastion.id}"
-    vpc_security_group_ids = ["${aws_security_group.swarm-bastion.id}", "${aws_security_group.private_registry.id}"]
+    key_name               = "${aws_key_pair.bastion.id}"
+    vpc_security_group_ids = ["${aws_security_group.bastion.id}", "${aws_security_group.private_registry.id}"]
     subnet_id              = "${element(var.subnet_public_bastion_ids, var.count_bastion_subnet_on_public)}"
 
     tags  {
-        Name           = "${terraform.workspace}-${lower(var.project)}-bastion-${count.index}"
-        Env            = "${terraform.workspace}"
-        Project        = "${var.project}"
-        Role           = "bastion"
-        Index          = "${count.index}"
+        Name        = "${terraform.workspace}-${lower(var.project)}-bastion-${count.index}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
+        Role        = "bastion"
+        Index       = "${count.index}"
     }
     user_data  = "${element(data.template_file.user-data-bastion.*.rendered, count.index)}"
 }
-resource "aws_eip" "swarm-bastion" {
+resource "aws_eip" "bastion" {
     vpc      = true
-    instance = "${aws_instance.swarm-bastion.id}"
+    instance = "${aws_instance.bastion.id}"
 }

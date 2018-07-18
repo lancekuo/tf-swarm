@@ -1,7 +1,7 @@
 variable "vpc_default_id" {}
 
-resource "aws_security_group" "swarm-manager" {
-    name        = "${terraform.workspace}-swarm-manager"
+resource "aws_security_group" "manager" {
+    name        = "${terraform.workspace}-manager"
     description = "Gossip and port for swarm manager internal"
     vpc_id      = "${var.vpc_default_id}"
 
@@ -9,28 +9,27 @@ resource "aws_security_group" "swarm-manager" {
         from_port       = 22
         to_port         = 22
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
     ingress {
         from_port       = 2376
         to_port         = 2376
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
     ingress {
         from_port       = 2375
         to_port         = 2375
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
     tags {
-        Name    = "${terraform.workspace}-swarm-manager"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
-resource "aws_security_group" "swarm-node" {
-    name        = "${terraform.workspace}-swarm-node"
+resource "aws_security_group" "node" {
+    name        = "${terraform.workspace}-node"
     description = "Gossip and port for swarm mode internal"
     vpc_id      = "${var.vpc_default_id}"
 
@@ -73,7 +72,7 @@ resource "aws_security_group" "swarm-node" {
         from_port       = 2376
         to_port         = 2376
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
 
     ingress {
@@ -87,14 +86,14 @@ resource "aws_security_group" "swarm-node" {
         from_port       = 2375
         to_port         = 2375
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
 
     ingress {
         from_port       = 22
         to_port         = 22
         protocol        = "tcp"
-        security_groups = ["${aws_security_group.swarm-bastion.id}"]
+        security_groups = ["${aws_security_group.bastion.id}"]
     }
 
     egress {
@@ -104,14 +103,13 @@ resource "aws_security_group" "swarm-node" {
         cidr_blocks     = ["0.0.0.0/0"]
     }
     tags {
-        Name    = "${terraform.workspace}-swarm-node"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 
-resource "aws_security_group" "swarm-bastion" {
-    name        = "${terraform.workspace}-swarm-bastion"
+resource "aws_security_group" "bastion" {
+    name        = "${terraform.workspace}-bastion"
     description = "Access to the bastion machine"
     vpc_id      = "${var.vpc_default_id}"
 
@@ -129,9 +127,8 @@ resource "aws_security_group" "swarm-bastion" {
         cidr_blocks = ["0.0.0.0/0"]
     }
     tags {
-        Name    = "${terraform.workspace}-swarm-bastion"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 
@@ -156,16 +153,15 @@ resource "aws_security_group" "swarm-outgoing-service" {
         from_port   = 9090
         to_port     = 9090
         protocol    = "tcp"
-        security_groups = ["${aws_security_group.swarm-node.id}"]
+        security_groups = ["${aws_security_group.node.id}"]
     }
     tags {
-        Name    = "${terraform.workspace}-swarm-outgoing-service"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 resource "aws_security_group" "private_registry" {
-    name        = "${terraform.workspace}-${var.project}-private_registry"
+    name        = "${terraform.workspace}-registry"
     description = "Access to Private Registry service"
     vpc_id      = "${var.vpc_default_id}"
 
@@ -173,7 +169,7 @@ resource "aws_security_group" "private_registry" {
         from_port   = 80
         to_port     = 80
         protocol    = "tcp"
-        security_groups = ["${aws_security_group.swarm-node.id}", "${aws_security_group.swarm-manager.id}"]
+        security_groups = ["${aws_security_group.node.id}", "${aws_security_group.manager.id}"]
     }
 
     egress {
@@ -183,14 +179,13 @@ resource "aws_security_group" "private_registry" {
         cidr_blocks = ["0.0.0.0/0"]
     }
     tags {
-        Name    = "${terraform.workspace}-${var.project}-private_registry"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 
-resource "aws_security_group" "swarm-logstash" {
-    name        = "${terraform.workspace}-swarm-logstash"
+resource "aws_security_group" "logstash" {
+    name        = "${terraform.workspace}-logstash"
     description = "Provide the access to logstash internally."
     vpc_id      = "${var.vpc_default_id}"
 
@@ -198,18 +193,17 @@ resource "aws_security_group" "swarm-logstash" {
         from_port   = 5000
         to_port     = 5000
         protocol    = "udp"
-        security_groups = ["${aws_security_group.swarm-node.id}"]
+        security_groups = ["${aws_security_group.node.id}"]
     }
     ingress {
         from_port   = 9600
         to_port     = 9600
         protocol    = "tcp"
-        security_groups = ["${aws_security_group.swarm-node.id}"]
+        security_groups = ["${aws_security_group.node.id}"]
     }
     tags {
-        Name    = "${terraform.workspace}-swarm-logstash"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 resource "aws_security_group" "grafana-elb" {
@@ -230,9 +224,8 @@ resource "aws_security_group" "grafana-elb" {
         cidr_blocks     = ["0.0.0.0/0"]
     }
     tags {
-        Name    = "${terraform.workspace}-grafana-elb"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }
 resource "aws_security_group" "kibana-elb" {
@@ -253,8 +246,7 @@ resource "aws_security_group" "kibana-elb" {
         cidr_blocks     = ["0.0.0.0/0"]
     }
     tags {
-        Name    = "${terraform.workspace}-kibana-elb"
-        Env     = "${terraform.workspace}"
-        Project = "${var.project}"
+        Environment = "${terraform.workspace}"
+        Project     = "${var.project}"
     }
 }

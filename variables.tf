@@ -1,6 +1,3 @@
-variable "aws_region"                     {}
-variable "aws_profile"                    {}
-
 variable "count_bastion_subnet_on_public" {}
 variable "count_instance_per_az"          {}
 variable "count_swarm_manager"            {}

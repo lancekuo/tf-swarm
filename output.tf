@@ -1,21 +1,21 @@
 output "swarm_manager" {
-    value = "${aws_instance.swarm-manager.*.private_dns}"
+    value = "${aws_instance.manager.*.private_dns}"
 }
 output "swarm_node" {
-    value = "${aws_instance.swarm-node.*.private_dns}"
+    value = "${aws_instance.node.*.private_dns}"
 }
 output "bastion_public_ip" {
-    value = "${aws_eip.swarm-bastion.public_ip}"
+    value = "${aws_eip.bastion.public_ip}"
 }
 output "bastion_private_ip" {
-    value = "${aws_eip.swarm-bastion.private_ip}"
+    value = "${aws_eip.bastion.private_ip}"
 }
 output "node_list_string" {
-    value = "${join(",",aws_instance.swarm-node.*.id)}"
+    value = "${join(",",aws_instance.node.*.id)}"
 }
 
 output "security_group_node_id" {
-    value = "${aws_security_group.swarm-node.id}"
+    value = "${aws_security_group.node.id}"
 }
 
 output "elb_grafana_dns" {
