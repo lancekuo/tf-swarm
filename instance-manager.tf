@@ -27,6 +27,7 @@ resource "aws_instance" "manager" {
     key_name               = "${aws_key_pair.manager.id}"
     vpc_security_group_ids = ["${aws_security_group.node.id}", "${aws_security_group.manager.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.logstash.id}"]
     subnet_id              = "${element(var.subnet_public_app_ids, count.index)}"
+    monitoring             = true
 
     root_block_device = {
         volume_size = 20
