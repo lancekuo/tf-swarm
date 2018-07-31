@@ -28,9 +28,10 @@ resource "aws_instance" "manager" {
     vpc_security_group_ids = ["${aws_security_group.node.id}", "${aws_security_group.manager.id}", "${aws_security_group.swarm-outgoing-service.id}", "${aws_security_group.logstash.id}"]
     subnet_id              = "${element(var.subnet_public_app_ids, count.index)}"
     monitoring             = true
+    iam_instance_profile   = "${aws_iam_instance_profile.storage-baker.name}"
 
     root_block_device = {
-        volume_size = 20
+        volume_size = 10
         volume_type = "gp2"
     }
 
@@ -49,7 +50,9 @@ resource "aws_instance" "manager" {
         inline = [
             " if [ ${count.index} -eq 0 ]; then sudo docker swarm init; else sudo docker swarm join ${aws_instance.manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.manager.0.private_ip} swarm join-token -q manager); fi",
             " if [ ${count.index} -eq 1 ]; then git clone https://github.com/lancekuo/dfproxy.git;git clone https://github.com/lancekuo/prometheus.git; fi",
-            " if [ ${count.index} -eq 2 ]; then git clone https://github.com/lancekuo/elk.git; fi"
+            " if [ ${count.index} -eq 2 ]; then git clone https://github.com/lancekuo/elk.git; fi",
+            "docker plugin install rexray/ebs --grant-all-permissions",
+            "docker plugin install rexray/s3fs S3FS_REGION=${var.aws_region} S3FS_ENDPOINT=http://s3-${var.aws_region}.amazonaws.com S3FS_OPTIONS=iam_role=auto,url=http://s3-${var.aws_region}.amazonaws.com,curldbg --grant-all-permissions"
         ]
     }
 

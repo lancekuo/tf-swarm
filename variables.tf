@@ -8,6 +8,7 @@ variable "subnet_public_app_ids"          {type="list"}
 variable "subnet_private_ids"             {type="list"}
 variable "project"                        {}
 variable "domain"                         {}
+variable "aws_region"                     {}
 variable "availability_zones"             {type="list"}
 
 variable "aws_ami_docker"                 {}
